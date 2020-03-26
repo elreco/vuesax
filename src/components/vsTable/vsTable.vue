@@ -1,128 +1,95 @@
 <template>
-  <div
-    :class="[{'stripe': stripe, 'hoverFlat': hoverFlat}, `vs-table-${color}`]"
-    class="vs-component vs-con-table">
-    <!-- header -->
-    <header class="header-table vs-table--header">
-      <slot name="header"></slot>
-      <div
-        v-if="search"
-        class="con-input-search vs-table--search">
-        <input
-          v-model="searchx"
-          class="input-search vs-table--search-input"
-          type="text">
-        <vs-icon icon="search"></vs-icon>
-      </div>
-    </header>
-    <div class="con-tablex vs-table--content">
-      <div
-        :style="styleConTbody"
-        class="vs-con-tbody vs-table--tbody ">
-        <table
-          ref="table"
-          class="vs-table vs-table--tbody-table">
-          <thead
-            ref="thead"
-            class="vs-table--thead">
-            <tr>
-              <th
-                v-if="multiple || hasExpadableData"
-                class="td-check">
-                <span
-                  v-if="multiple"
-                  class="con-td-check">
-                  <vs-checkbox
-                    :key="isCheckedLine ? 'remove' : 'check'"
-                    :icon="isCheckedLine ? 'remove' : 'check'"
-                    :checked="isCheckedMultiple"
-                    size="small"
-                    @click="changeCheckedMultiple"/>
-                </span>
-              </th>
-              <slot name="thead"></slot>
-            </tr>
-          </thead>
-          <slot :data="datax"></slot>
-        </table>
-      </div>
-      <div
-        v-if="isNoData"
-        class="not-data-table vs-table--not-data">
-        {{ noDataText }}
-      </div>
+<div :class="[{'stripe': stripe, 'hoverFlat': hoverFlat}, `vs-table-${color}`]" class="vs-component vs-con-table">
+  <!-- header -->
+  <header class="header-table vs-table--header">
+    <slot name="header"></slot>
+    <div v-if="search" class="con-input-search vs-table--search">
+      <input v-model="searchx" class="input-search vs-table--search-input" type="text">
+      <vs-icon icon="search"></vs-icon>
+    </div>
+  </header>
+  <div class="con-tablex vs-table--content">
+    <div :style="styleConTbody" class="vs-con-tbody vs-table--tbody ">
+      <table ref="table" class="vs-table vs-table--tbody-table">
+        <thead ref="thead" class="vs-table--thead">
+          <tr>
+            <th v-if="multiple || hasExpadableData" class="td-check">
+              <span v-if="multiple" class="con-td-check">
+                <vs-checkbox :key="isCheckedLine ? 'remove' : 'check'" :icon="isCheckedLine ? 'remove' : 'check'" :checked="isCheckedMultiple" size="small" @click="changeCheckedMultiple" />
+              </span>
+            </th>
+            <slot name="thead"></slot>
+          </tr>
+        </thead>
+        <slot :data="datax"></slot>
+      </table>
+    </div>
+    <div v-if="isNoData" class="not-data-table vs-table--not-data">
+      {{ noDataText }}
+    </div>
 
-      <div
-        v-if="pagination"
-        class="con-pagination-table vs-table--pagination">
-        <vs-pagination
-          v-model="currentx"
-          :total="searchx && !sst ? getTotalPagesSearch : getTotalPages"
-          :description-items="descriptionItems"
-          :max-items="maxItemsx"
-          :size-array="queriedResults.length"
-          :description="description"
-          @changeMaxItems="changeMaxItems"
-        >
-        </vs-pagination>
-      </div>
+    <div v-if="pagination" class="con-pagination-table vs-table--pagination">
+      <vs-pagination v-model="currentx" :total="searchx && !sst ? getTotalPagesSearch : getTotalPages" :description-items="descriptionItems" :max-items="maxItemsx" :size-array="queriedResults.length" :description="description"
+          @changeMaxItems="changeMaxItems">
+      </vs-pagination>
     </div>
   </div>
+</div>
 </template>
 
 <script>
 export default {
   name: "VsTable",
-  props:{
-    value:{},
+  props: {
+    value: {},
     color: {
-      default:'primary',
+      default: 'primary',
       type: String
     },
     noDataText: {
       default: 'No data Available',
       type: String
     },
-    stripe:{
+    stripe: {
       default: false,
       type: Boolean
     },
-    hoverFlat:{
+    hoverFlat: {
       default: false,
       type: Boolean
     },
-    maxHeight:{
+    maxHeight: {
       default: 'auto',
       type: String
     },
-    multiple:{
+    multiple: {
       default: false,
       type: Boolean
     },
-    data:{
+    data: {
       default: null,
     },
-    notSpacer:{
-      default:false,
-      type:Boolean
-    },
-    search:{
+    notSpacer: {
       default: false,
       type: Boolean
     },
-    maxItems:{
+    search: {
+      default: false,
+      type: Boolean
+    },
+    maxItems: {
       default: 5,
       type: [Number, String]
     },
-    pagination:{
+    pagination: {
       default: false,
       type: Boolean
     },
-    description:{
+    description: {
       default: false,
       type: Boolean
     },
-    descriptionItems:{
+    descriptionItems: {
       default: () => [],
       type: Array
     },
@@ -130,7 +97,7 @@ export default {
       default: 1,
       type: Number | String
     },
-    sst:{
+    sst: {
       default: false,
       type: Boolean
     },
@@ -143,7 +110,7 @@ export default {
       default: false
     }
   },
-  data:()=>({
+  data: () => ({
     headerWidth: '100%',
     trs: [],
     datax: [],
@@ -154,19 +121,18 @@ export default {
     currentSortKey: null,
     currentSortType: null
   }),
-  computed:{
+  computed: {
     getTotalPages() {
-      let dataLength = !this.sst ? this.data.length : this.total; 
-      return Math.ceil(dataLength / this.maxItemsx)
+      return Math.ceil((this.total ? this.total : this.data.length) / this.maxItemsx)
     },
     getTotalPagesSearch() {
       return Math.ceil(this.queriedResults.length / this.maxItems)
     },
     queriedResults() {
       let queriedResults = this.data
-      if(this.searchx && this.search) {
+      if (this.searchx && this.search) {
         let dataBase = this.data
-        queriedResults = dataBase.filter((tr)=>{
+        queriedResults = dataBase.filter((tr) => {
           let values = this.getValues(tr).toString().toLowerCase()
           return values.indexOf(this.searchx.toLowerCase()) != -1
         })
@@ -174,42 +140,42 @@ export default {
       return queriedResults
     },
     isNoData() {
-      if(typeof(this.datax) == Object) {
-        return this.datax? Object.keys(this.datax).length == 0:false && this.search
+      if (typeof(this.datax) == Object) {
+        return this.datax ? Object.keys(this.datax).length == 0 : false && this.search
       } else {
-        return this.datax?this.datax.length == 0:false && this.search
+        return this.datax ? this.datax.length == 0 : false && this.search
       }
     },
-    isCheckedLine () {
+    isCheckedLine() {
       let lengthx = this.data.length
       let lengthSelected = this.value.length
       return lengthx !== lengthSelected
     },
-    isCheckedMultiple () {
+    isCheckedMultiple() {
       return this.value.length > 0
     },
-    styleConTbody () {
+    styleConTbody() {
       return {
         maxHeight: this.maxHeight,
-        overflow: this.maxHeight != 'auto'?'auto':null
+        overflow: this.maxHeight != 'auto' ? 'auto' : null
       }
     },
-    getThs () {
-      let ths = this.$slots.thead.filter(item => item.tag )
+    getThs() {
+      let ths = this.$slots.thead.filter(item => item.tag)
       return ths.length
     },
-    tableHeaderStyle () {
+    tableHeaderStyle() {
       return {
         width: this.headerWidth
       }
     },
   },
-  watch:{
+  watch: {
     currentPage() {
       this.currentx = this.currentPage
     },
     currentx() {
-      if(this.sst) {
+      if (this.sst) {
         this.$emit('change-page', this.currentx)
       } else {
         this.loadData()
@@ -225,13 +191,13 @@ export default {
     data() {
       this.loadData()
       this.$nextTick(() => {
-        if(this.datax.length > 0) {
+        if (this.datax.length > 0) {
           this.changeTdsWidth()
         }
       })
     },
     searchx() {
-      if(this.sst) {
+      if (this.sst) {
         this.$emit('search', this.searchx)
       } else {
         this.loadData()
@@ -239,7 +205,7 @@ export default {
       }
     }
   },
-  mounted () {
+  mounted() {
     window.addEventListener('resize', this.listenerChangeWidth)
     this.maxItemsx = this.maxItems
     this.loadData()
@@ -250,15 +216,15 @@ export default {
     //   }
     // })
   },
-  destroyed () {
+  destroyed() {
     window.removeEventListener('resize', this.listenerChangeWidth)
   },
-  methods:{
+  methods: {
     loadData() {
       let max = Math.ceil(this.currentx * this.maxItemsx)
       let min = max - this.maxItemsx
 
-      if(!this.searchx || this.sst) {
+      if (!this.searchx || this.sst) {
         this.datax = this.pagination ? this.getItems(min, max) : this.sortItems(this.data) || [];
       } else {
         this.datax = this.pagination ? this.getItemsSearch(min, max) : this.getItemsSearch(min, max) || []
@@ -269,19 +235,23 @@ export default {
 
       let items = []
       dataBase.forEach((item, index) => {
-        if(index >= min && index < max) {
+        if (this.total || index >= min && index < max) {
           items.push(item)
         }
       })
       return items
     },
     sortItems(data) {
-      const { currentSortKey, currentSortType } = this;
-      function compare(a,b) {
+      const {
+        currentSortKey,
+        currentSortType
+      } = this;
+
+      function compare(a, b) {
         if (a[currentSortKey] < b[currentSortKey])
-          return currentSortType == 'desc'?1:-1;
+          return currentSortType == 'desc' ? 1 : -1;
         if (a[currentSortKey] > b[currentSortKey])
-          return currentSortType == 'desc'?-1:1;
+          return currentSortType == 'desc' ? -1 : 1;
         return 0;
       }
       return currentSortType !== null ? [...data].sort(compare) : [...data];
@@ -289,7 +259,7 @@ export default {
     getItemsSearch(min, max) {
       const search = this.normalize(this.searchx);
 
-      return this.sortItems(this.data).filter((tr)=>{
+      return this.sortItems(this.data).filter((tr) => {
         return this.normalize(this.getValues(tr).toString()).indexOf(search) != -1
       }).filter((_, index) => {
         return (index >= min && index < max);
@@ -298,7 +268,7 @@ export default {
     sort(key, sortType) {
       this.currentSortKey = key;
       this.currentSortType = sortType;
-      if(this.sst) {
+      if (this.sst) {
         this.$emit('sort', key, sortType)
         return
       }
@@ -312,11 +282,11 @@ export default {
         return Object.values(val || []).reduce((acc, val) => (typeof val === 'object') ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
       }
 
-      return flattenDeep(obj).filter(function (item) {
+      return flattenDeep(obj).filter(function(item) {
         return (typeof item === 'string') || (typeof item === 'number');
       });
     },
-    changeCheckedMultiple () {
+    changeCheckedMultiple() {
       let lengthx = this.data.length
       let lengthSelected = this.value.length
       let selectedx = (lengthx - lengthSelected)
@@ -327,10 +297,10 @@ export default {
       }
     },
     handleCheckbox(tr) {
-      if(this.multiple && this.onlyClickCheckbox){
+      if (this.multiple && this.onlyClickCheckbox) {
         let val = this.value.slice(0)
-        if(val.includes(tr)) {
-          val.splice(val.indexOf(tr),1)
+        if (val.includes(tr)) {
+          val.splice(val.indexOf(tr), 1)
         } else {
           val.push(tr)
         }
@@ -339,11 +309,11 @@ export default {
         this.$emit('selected', tr)
       }
     },
-    clicktr (tr, isTr) {
-      if(this.multiple && isTr && !this.onlyClickCheckbox){
+    clicktr(tr, isTr) {
+      if (this.multiple && isTr && !this.onlyClickCheckbox) {
         let val = this.value.slice(0)
-        if(val.includes(tr)) {
-          val.splice(val.indexOf(tr),1)
+        if (val.includes(tr)) {
+          val.splice(val.indexOf(tr), 1)
         } else {
           val.push(tr)
         }
@@ -355,37 +325,40 @@ export default {
         this.$emit('selected', tr)
       }
     },
-    dblclicktr (tr, isTr) {
+    dblclicktr(tr, isTr) {
 
       if (isTr) {
-        this.$emit('dblSelection',tr)
+        this.$emit('dblSelection', tr)
       }
 
     },
-    listenerChangeWidth () {
+    listenerChangeWidth() {
       this.headerWidth = `${this.$refs.table.offsetWidth}px`
       this.changeTdsWidth()
     },
     changeTdsWidth() {
-      if(!this.value) return
+      if (!this.value) return
 
       let tbody = this.$refs.table.querySelector('tbody')
 
       // Adding condition removes querySelector none error - if tbody isnot present
-      if(tbody) {
+      if (tbody) {
         let trvs = tbody.querySelector('.tr-values')
-        if (trvs === undefined || trvs === null ) return
+        if (trvs === undefined || trvs === null) return
         let tds = trvs.querySelectorAll('.td')
 
         let tdsx = []
 
         tds.forEach((td, index) => {
-          tdsx.push({index: index, widthx: td.offsetWidth})
+          tdsx.push({
+            index: index,
+            widthx: td.offsetWidth
+          })
         });
 
 
         let colgrouptable = this.$refs.colgrouptable
-        if (colgrouptable !== undefined && colgrouptable !== null ) {
+        if (colgrouptable !== undefined && colgrouptable !== null) {
           let colsTable = colgrouptable.querySelectorAll('.col')
           colsTable.forEach((col, index) => {
             col.setAttribute('width', tdsx[index].widthx)
@@ -394,7 +367,7 @@ export default {
 
       }
     },
-    changeMaxItems (index) {
+    changeMaxItems(index) {
       this.maxItemsx = this.descriptionItems[index]
     }
   }
