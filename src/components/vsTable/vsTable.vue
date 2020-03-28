@@ -47,7 +47,7 @@ export default {
       type: String
     },
     noDataText: {
-      default: 'No data Available',
+      default: '',
       type: String
     },
     stripe: {
